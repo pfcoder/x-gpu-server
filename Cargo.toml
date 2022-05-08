@@ -1,0 +1,39 @@
+[package]
+name = "xgpu_server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+config = "0.11"
+dotenv = "0.15"
+futures = "0.3.21"
+lazy_static = "1.4"
+secrecy = { version = "0.8", features = ["serde"] }
+serde = {version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
+serde-aux = "3"
+sqlx = { version = "0.5.10", default-features = false, features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "macros",
+    "chrono",
+    "uuid",
+    "migrate",
+    "offline",
+] }
+thiserror = "1"
+tokio = { version = "1.17.0", features = ["macros", "sync", "rt-multi-thread"] }
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "registry"] }
+uuid = { version = "0.8", features = ["serde", "v4"] }
+warp = "0.3.2"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "xgpu-server"
+path = "src/bin/server.rs"
