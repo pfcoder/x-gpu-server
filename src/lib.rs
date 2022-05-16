@@ -6,7 +6,7 @@ use futures::Future;
 use sqlx::PgPool;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
-use warp::{ws::Message, Filter, Rejection};
+use warp::Filter;
 
 pub mod configuration;
 mod error;
@@ -19,7 +19,11 @@ use crate::{
     configuration::{get_configuration, Settings},
     service::ws::Clients,
 };
-use handlers::{health::health_handler, host::register_handler};
+use handlers::{
+    health::health_handler,
+    host::{publish_handler, register_handler},
+    ws::ws_handler,
+};
 use lazy_static::lazy_static;
 use sqlx::postgres::PgPoolOptions;
 
@@ -44,9 +48,14 @@ pub fn server() -> impl Future<Output = ()> {
         .and(warp::path::param())
         .and_then(ws_handler);
 
+    let publish = warp::path!("publish")
+        .and(warp::body::json())
+        .and_then(publish_handler);
+
     let routes = health_route
         .or(register_route)
         .or(ws_route)
+        .or(publish)
         .with(warp::cors().allow_any_origin());
 
     warp::serve(routes).run(([0, 0, 0, 0], CONFIG.server.port))

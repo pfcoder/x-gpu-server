@@ -1,5 +1,4 @@
 use crate::PG_POOL;
-use chrono::Utc;
 use uuid::Uuid;
 
 use crate::{

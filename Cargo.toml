@@ -26,6 +26,7 @@ sqlx = { version = "0.5.10", default-features = false, features = [
 ] }
 thiserror = "1"
 tokio = { version = "1.17.0", features = ["macros", "sync", "rt-multi-thread"] }
+tokio-stream = "0.1.8"
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "registry"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }

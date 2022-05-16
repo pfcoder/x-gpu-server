@@ -2,6 +2,8 @@ use crate::{
     error::Result,
     handlers::host::HostRegisterRequest,
     model::{CreateHostData, Host},
+    service::ws::Client,
+    CLIENTS,
 };
 
 use uuid::Uuid;
@@ -41,17 +43,34 @@ pub struct HostService;
 
 impl HostService {
     pub async fn register(body: HostRegisterRequest) -> Result<String> {
-        let host = Host::create(CreateHostData {
-            status: HostStatus::Idle.into(),
-            cpu_info: body.cpu_info,
-            gpu_info: body.gpu_info,
-            ram: body.ram,
-            hd: body.hd,
-            ip: body.ip,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-        })
-        .await?;
+        // db operation
+        let host = match body.id {
+            Some(id) => {
+                // TODO: update
+                Host::find_by_id(Uuid::parse_str(&id).unwrap()).await?
+            }
+            None => {
+                Host::create(CreateHostData {
+                    status: HostStatus::Idle.into(),
+                    cpu_info: body.cpu_info,
+                    gpu_info: body.gpu_info,
+                    ram: body.ram,
+                    hd: body.hd,
+                    ip: body.ip,
+                    created_at: chrono::Utc::now(),
+                    updated_at: chrono::Utc::now(),
+                })
+                .await?
+            }
+        };
+
+        // update hash map
+        let client = Client {
+            id: host.id.to_string(),
+            sender: None,
+        };
+        // insert client into hash map
+        CLIENTS.write().await.insert(host.id.to_string(), client);
 
         Ok(host.id.to_string())
     }
